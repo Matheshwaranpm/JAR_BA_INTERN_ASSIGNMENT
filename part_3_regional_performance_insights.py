@@ -9,15 +9,18 @@ Original file is located at
 # PART 3: REGIONAL PERFORMANCE INSIGHTS
 """
 
+# Importing necessary library
 import pandas as pd
-import numpy as np
 
+# Creating a dataframe
 df = pd.read_csv("/content/drive/MyDrive/Colab Notebooks/Merged_orders.csv")
 df.head()
 
+# Top states which has higher orders
 top_states = df['State'].value_counts().head(5).index
 top_states
 
+# Result for clear view
 top_states_fil = df[df['State'].isin(top_states)]
 state_result = top_states_fil.groupby('State').agg(
     Totalorder = ('Order ID','count'),
@@ -34,6 +37,7 @@ state_result
 5. Rajasthan
 """
 
+# Calculating total sales, total profit, avg profit, total orders
 region_result = df.groupby(['State','City']).agg(
     Totalsales = ('Amount','sum'),
     Totalprofit = ('Profit','sum'),
@@ -41,6 +45,7 @@ region_result = df.groupby(['State','City']).agg(
     Totalorder = ('Order ID','count'),
 ).reset_index()
 
+# Identifying low perform cities
 low_perform = region_result[(region_result['Totalsales']<region_result['Totalsales'].median()) | (region_result['Totalprofit']< region_result['Totalprofit'].median())]
 low_perform = low_perform.sort_values(by='Totalprofit')
 low_perform
@@ -56,6 +61,7 @@ low_perform
 These city's sales face a lot of loss in the total sales order and profit where in chennai there only 25 orders where placed and it's total profit is negative(-2216) which means there is no profit margin in that region so we have to cross-check operational costs, heavy discounting, or low pricing strategies responsible for the losses. Focus on product pricing and higher-margin product lines.
 """
 
+# Identifying high perform cities
 high_perform = low_perform.sort_values(by='Avgprofit',ascending= False)
 high_perform
 

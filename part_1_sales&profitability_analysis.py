@@ -9,30 +9,36 @@ Original file is located at
 # PART 1: SALES AND PROFITABILITY ANALYSIS
 """
 
+# Importing necessary library
 import pandas as pd
-import numpy as np
 
+# Creating a dataframe
 df = pd.read_csv("/content/drive/MyDrive/Colab Notebooks/Merged_orders.csv")
 df
 
+# Checks how many categories are present
 df['Category'].unique()
 
 profits = df.groupby('Category')
 
 category_grouped = df.groupby("Category")
 
+# Calculating total profit, amount and orders for each category
 total_profit = category_grouped['Profit'].sum()
 total_amount = category_grouped['Amount'].sum()
 total_orders = category_grouped["Order ID"].nunique()
 
+#average profit for each category
 avg_profit = round(total_profit/total_orders,2)
 avg_profit
 
 """These are the average profit per order for each category."""
 
+# Calculating Profit margin for each category
 profit_margin = round((total_profit/total_amount)*100,2)
 profit_margin
 
+# Merging all result to present clear view
 result = pd.DataFrame({"Average Profit per Order": avg_profit,"Total Profit Margin(%)": profit_margin}).reset_index()
 result
 
@@ -46,23 +52,28 @@ total_orders
 pos_profit = df[df["Profit"]>0]
 neg_profit = df[df["Profit"]<0]
 
+# Counting Positive profit order and sum of the profits
 pos_stats = pos_profit.groupby("Category")["Profit"].agg(["count","sum"]).reset_index()
 pos_stats
 
+# Counting Negative profit order and sum of the profits
 neg_stats = neg_profit.groupby("Category")["Profit"].agg(["count","sum"]).reset_index()
 neg_stats
 
 total_orders_per_cat = df.groupby("Category")["Profit"].count().astype(float)
 
+# Merging all the results
 profit_percent = pd.merge(pos_stats,neg_stats, on="Category",how="outer").fillna(0)
 profit_percent["Total Orders"] = profit_percent["Category"].map(total_orders_per_cat)
 profit_percent
 
+# Calculating positive and negative percentage for each category
 profit_percent["Positive %"]=(profit_percent["count_x"]/profit_percent["Total Orders"])*100
 profit_percent["Negative %"]=(profit_percent["count_y"]/profit_percent["Total Orders"])*100
 profit_percent = profit_percent.drop(columns=["Total Orders"])
 profit_percent
 
+# Renaming column name for understanding.
 profit_percent.rename(columns={'count_x':'Positive Orders','sum_x':'Positive Profit','count_y':'Negative Orders','sum_y':'Negative Profit'},inplace= True)
 profit_percent
 

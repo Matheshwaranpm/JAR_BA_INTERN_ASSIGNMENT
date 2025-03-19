@@ -9,24 +9,29 @@ Original file is located at
 # PART 2: TARGET ACHIEVEMENT ANALYSIS
 """
 
+# Importing necessary library
 import pandas as pd
-import numpy as np
 
+# Creating a dataframe
 df = pd.read_csv("/content/drive/MyDrive/Colab Notebooks/Sales_target_DD2E9B96A0.csv")
 df.head()
 
+# Changing "Month of Order Date" to datetime format
 df["Month of Order Date"] = pd.to_datetime(df["Month of Order Date"],format="%b-%y")
 df.head()
 
 furniture_df = df[df["Category"]=="Furniture"].copy()
 furniture_df.count()
 
+# Sorting by datetime
 furniture_df.sort_values(by="Month of Order Date",inplace = True)
 
+# Finding target sales percentage change for furniture category
 furniture_df["Percentage Change(%)"] = round(furniture_df["Target"].pct_change()*100,2)
 furniture_df = furniture_df.fillna(0)
 furniture_df
 
+# average percentage change for furniture
 Avg_furniture = furniture_df['Percentage Change(%)'].sum() / furniture_df.count()
 Avg_furniture['Percentage Change(%)']
 
@@ -37,19 +42,23 @@ df_sorted["Percentage Change"] = round(df_sorted.groupby("Category")["Target"].p
 df_sorted = df_sorted.fillna(0)
 df_sorted
 
+# Finding Signficant fluctuation for each category
 df_sorted["Signficant Fluctuation"] = df_sorted["Percentage Change"].apply(lambda x:"Static" if x == 0 else("High Increase" if x >= 1.5 else("Low Increase" if x <= 0.9 else "Normal")))
 fluctuation_months = df_sorted[df_sorted["Signficant Fluctuation"]!= "Normal"]
 fluctuation_months
 
+# Grouped fluctuation result for better understanding
 grouped_fluctuation = fluctuation_months.groupby("Signficant Fluctuation")
 for fluctuation_type, group in grouped_fluctuation:
   print(f"\nFluctuation Type:{fluctuation_type}")
   print(group[["Month of Order Date","Category","Target","Percentage Change"]])
 
+# Sorted the result
 df_sorted["Formatted Month"] = df_sorted["Month of Order Date"].dt.strftime("%B %Y")
 df_sorted = df_sorted.drop(columns="Month of Order Date")
 df_sorted
 
+# Understanding of significant fluctuation for each category
 Summary_df = df_sorted.groupby("Category").apply(
     lambda x: pd.Series({
         "High Increase":",".join(x.loc[x["Signficant Fluctuation"] == "High Increase","Formatted Month"]),
